@@ -9,7 +9,7 @@ require 'rolify/adapters/base'
 module Rolify
   extend Configure
 
-  attr_accessor :role_cname, :adapter, :role_table_name
+  attr_accessor :role_cname, :user_cname, :adapter, :role_table_name
 
   def rolify(options = {})
     include Role
@@ -17,6 +17,8 @@ module Rolify
     
     options.reverse_merge!({:role_cname => 'Role'})
     self.role_cname = options[:role_cname]
+    options.reverse_merge!({:user_cname => self.name})
+    self.role_cname = options[:user_cname]
     self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
 
     join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
@@ -26,7 +28,7 @@ module Rolify
 
     has_and_belongs_to_many :roles, rolify_options
 
-    self.adapter = Rolify::Adapter::Base.create("role_adapter", self.role_cname, self.name)
+    self.adapter = Rolify::Adapter::Base.create("role_adapter", self.role_cname, self.user_cname)
     load_dynamic_methods if Rolify.dynamic_shortcuts
   end
 
